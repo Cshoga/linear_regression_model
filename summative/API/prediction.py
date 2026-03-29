@@ -4,8 +4,8 @@
 import json
 import os
 import io
-
 from typing import List
+
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -23,6 +23,11 @@ MODEL_PATH = os.path.join(BASE_DIR, "best_model.pkl")
 SCALER_PATH = os.path.join(BASE_DIR, "scaler.pkl")
 COLS_PATH  = os.path.join(BASE_DIR, "feature_columns.json")
 
+if not os.path.exists(MODEL_PATH):
+    print("Model not found — running train.py first...")
+    import subprocess, sys
+    subprocess.run([sys.executable, os.path.join(BASE_DIR, "train.py")], check=True)
+
 model  = joblib.load(MODEL_PATH)
 scaler = joblib.load(SCALER_PATH)
 
@@ -39,25 +44,22 @@ app = FastAPI(
     version="1.0.0",
 )
 
-
 app.add_middleware(
     CORSMiddleware,
-
     allow_origins=[
         "http://localhost",
         "http://localhost:3000",
         "http://localhost:8080",
         "http://127.0.0.1:8000",
-        "https://student-score-predictor.onrender.com",  
+        "https://linear-regression-model-pl1a.onrender.com",  
+        "*", 
     ],
     allow_credentials=True,           
-    allow_methods=["GET", "POST"],    
+    allow_methods=["GET", "POST"],   
     allow_headers=["Content-Type", "Authorization"],  
 )
 
-
 class StudentInput(BaseModel):
-    
     age: int = Field(
         ...,
         ge=10, le=25,
@@ -83,7 +85,6 @@ class StudentInput(BaseModel):
         example="graduate"
     )
 
-    
     study_hours: float = Field(
         ...,
         ge=0.0, le=12.0,
@@ -122,8 +123,6 @@ class StudentInput(BaseModel):
         ),
         example="mixed"
     )
-
-    
     math_score: float = Field(
         ...,
         ge=0.0, le=100.0,
@@ -143,8 +142,6 @@ class StudentInput(BaseModel):
         example=75.0
     )
 
-
-
 def encode_input(data: StudentInput) -> pd.DataFrame:
     """
     Replicate the same get_dummies() encoding used during training.
@@ -158,7 +155,7 @@ def encode_input(data: StudentInput) -> pd.DataFrame:
     extra_activities = data.extra_activities.lower().strip()
     study_method     = data.study_method.lower().strip()
 
-    
+   
     row = {
         "age":                   data.age,
         "study_hours":           data.study_hours,
@@ -168,11 +165,9 @@ def encode_input(data: StudentInput) -> pd.DataFrame:
         "english_score":         data.english_score,
     }
 
-    
     row["gender_male"]  = 1 if gender == "male"  else 0
     row["gender_other"] = 1 if gender == "other" else 0
 
-    
     row["school_type_public"] = 1 if school_type == "public" else 0
 
     
@@ -180,7 +175,7 @@ def encode_input(data: StudentInput) -> pd.DataFrame:
         col = f"parent_education_{level}"
         row[col] = 1 if parent_education == level else 0
 
-    
+   
     row["internet_access_yes"] = 1 if internet_access == "yes" else 0
 
     
@@ -188,19 +183,15 @@ def encode_input(data: StudentInput) -> pd.DataFrame:
         col = f"travel_time_{t}"
         row[col] = 1 if travel_time == t else 0
 
-    
     row["extra_activities_yes"] = 1 if extra_activities == "yes" else 0
 
-    
     for method in ["group study", "mixed", "notes", "online videos", "textbook"]:
         col = f"study_method_{method}"
         row[col] = 1 if study_method == method else 0
 
-    
+    # Build DataFrame with exact column order
     df_row = pd.DataFrame([row])[FEATURE_COLUMNS]
     return df_row
-
-
 
 @app.get("/", tags=["Health"])
 def root():
@@ -209,19 +200,14 @@ def root():
         "docs": "/docs",
     }
 
+
 @app.get("/health", tags=["Health"])
 def health():
     return {"status": "ok", "model": "RandomForestRegressor"}
 
-
 @app.post("/predict", tags=["Prediction"])
 def predict(student: StudentInput):
-    """
-    **Predict a student's overall academic score.**
-
-    Supply the student's demographic info, study habits, and subject scores.
-    Returns the predicted overall score (0–100) and a counseling flag.
-    """
+   
     try:
         
         df_input = encode_input(student)
@@ -232,9 +218,9 @@ def predict(student: StudentInput):
         prediction = round(min(max(prediction, 0.0), 100.0), 2)  # clamp 0–100
 
         if prediction < 50:
-            flag = "High risk: urgent counseling recommended"
+            flag = "High risk : urgent counseling recommended"
         elif prediction < 65:
-            flag = "At risk: counseling suggested"
+            flag = "At risk : counseling suggested"
         else:
             flag = "On track"
 
@@ -248,17 +234,15 @@ def predict(student: StudentInput):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
 @app.post("/retrain", tags=["Model Update"])
 async def retrain(file: UploadFile = File(...)):
     
-    global model, scaler   
+    global model, scaler  
 
     try:
         contents = await file.read()
         df_new = pd.read_csv(io.BytesIO(contents))
 
-        
         required_cols = [
             "age", "gender", "school_type", "parent_education",
             "study_hours", "attendance_percentage", "internet_access",
@@ -272,7 +256,6 @@ async def retrain(file: UploadFile = File(...)):
                 detail=f"CSV is missing columns: {missing}"
             )
 
-        
         if "student_id" in df_new.columns:
             df_new = df_new.drop("student_id", axis=1)
         if "final_grade" in df_new.columns:
@@ -304,7 +287,6 @@ async def retrain(file: UploadFile = File(...)):
         mse = mean_squared_error(y_test, new_model.predict(X_test_sc))
         r2  = r2_score(y_test, new_model.predict(X_test_sc))
 
-        
         joblib.dump(new_model, MODEL_PATH)
         joblib.dump(new_scaler, SCALER_PATH)
         model  = new_model    # update global
@@ -321,7 +303,6 @@ async def retrain(file: UploadFile = File(...)):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 if __name__ == "__main__":
     import uvicorn
