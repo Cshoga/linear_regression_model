@@ -13,15 +13,15 @@ Many students fall behind without early warning. This app predicts a student's o
 linear_regression_model/
 └── summative/
     ├── linear_regression/
-    │   └── multivariate.ipynb          ← Task 1 notebook
+    │   └── multivariate.ipynb          
     ├── API/
-    │   ├── prediction.py               ← FastAPI app
+    │   ├── prediction.py               
     │   ├── requirements.txt
-    │   ├── best_model.pkl              ← Saved Random Forest model
-    │   ├── scaler.pkl                  ← Saved StandardScaler
-    │   └── feature_columns.json        ← Feature order for encoding
+    │   ├── python-version         
+    │   ├── train.py                 
+    │   └── feature_columns.json        
     └── FlutterApp/
-        └── student_predictor/          ← Flutter mobile app
+        └── student_score_prediction_app/  
 ```
 
 ---
@@ -30,17 +30,17 @@ linear_regression_model/
 
 **Swagger UI (click to open):**
 ```
-https://student-score-predictor.onrender.com/docs
+https://linear-regression-model-pl1a.onrender.com
 ```
 
 **Predict endpoint:**
 ```
-POST https://student-score-predictor.onrender.com/predict
+POST https://linear-regression-model-pl1a.onrender.com/predict
 ```
 
 **Retrain endpoint:**
 ```
-POST https://student-score-predictor.onrender.com/retrain
+POST https://linear-regression-model-pl1a.onrender.com/retrain
 ```
 
 ---
@@ -71,10 +71,7 @@ cd summative/FlutterApp/student_predictor
 # 1. Install dependencies
 flutter pub get
 
-# 2. Open lib/prediction_page.dart and update the API URL:
-#    const String _apiBaseUrl = 'https://YOUR-RENDER-URL.onrender.com';
-
-# 3. Run on connected device / emulator
+# 2. Run on connected device / emulator
 flutter run
 
 # Or build an APK:
