@@ -1,0 +1,21 @@
+# Model files — too large for GitHub, generated at runtime
+*.pkl
+*.pickle
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+*.g.dart
+
+# IDE
+.vscode/
+.idea/
+*.iml
