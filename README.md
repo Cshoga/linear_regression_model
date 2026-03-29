@@ -66,7 +66,7 @@ uvicorn prediction:app --reload --port 8000
 ### Steps
 
 ```bash
-cd summative/FlutterApp/student_predictor
+cd summative/FlutterApp/student_score_prediction_app
 
 # 1. Install dependencies
 flutter pub get
