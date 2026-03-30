@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-const String _apiBaseUrl = 'https://linear-regression-model-pl1a.onrender.com';
+const String _apiBaseUrl = 'https://linear-regression-model-0959.onrender.com';
 
 void main() {
   runApp(const StudentCounselingApp());
