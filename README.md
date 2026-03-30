@@ -83,7 +83,7 @@ flutter build apk --release
 
 ## Video Demo
 
-[YouTube Demo Link – coming soon]
+https://www.loom.com/share/c76f0a509dae48128d8d10728b321ece
 
 ---
 
