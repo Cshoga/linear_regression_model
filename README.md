@@ -30,17 +30,17 @@ linear_regression_model/
 
 **Swagger UI (click to open):**
 ```
-https://linear-regression-model-pl1a.onrender.com
+https://linear-regression-model-0959.onrender.com
 ```
 
 **Predict endpoint:**
 ```
-POST https://linear-regression-model-pl1a.onrender.com/predict
+POST https://linear-regression-model-0959.onrender.com/predict
 ```
 
 **Retrain endpoint:**
 ```
-POST https://linear-regression-model-pl1a.onrender.com/retrain
+POST https://linear-regression-model-0959.onrender.com/retrain
 ```
 
 ---
